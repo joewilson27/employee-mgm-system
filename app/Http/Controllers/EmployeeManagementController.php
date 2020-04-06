@@ -180,9 +180,9 @@ class EmployeeManagementController extends Controller
         $index = 0;
         foreach ($constraints as $constraint) {
             if ($constraint != null) {
-                // $query = $query->where($fields[$index], 'like', '%'.$constraint.'%');
                 
-                $query = $query->where('department.name', 'like', '%'.$constraint.'%');
+                $query = $query->where($fields[$index], 'like', '%'.$constraint.'%');
+                
                 // search concat fullname
                 $query = $query->orwhere(DB::raw('concat(employees.firstname," ",employees.middlename," ",employees.lastname)'), 'like', '%'.$constraint.'%');
 
