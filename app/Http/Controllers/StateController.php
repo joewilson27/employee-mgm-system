@@ -143,10 +143,12 @@ class StateController extends Controller
     public function search(Request $request) {
         $constraints = [
             //'name' => $request['name'] // ganti, karena biar bisa mencari berdasarkan country juga
-            'state.name' => $request['name'] // karena ini di ganti state.name, jgn lupa key pada index searchingVals di ganti juga dari name -> state.name
+            'state.name' => $request['name'], 
+            'country.name' => $request['name']
             ];
 
        $states = $this->doSearchingQuery($constraints);
+       $constraints['name'] = $request['name']; // tambahan variable untuk di passing ke variable searchingVals di view
        // var_dump($states);
        return view('system-mgmt/state/index', ['states' => $states, 'searchingVals' => $constraints]);
     }
@@ -176,7 +178,7 @@ class StateController extends Controller
             if ($constraint != null) {
 
                 $query = $query->where( $fields[$index], 'like', '%'.$constraint.'%');
-                $query = $query->orwhere('country.name', 'like', '%'.$constraint.'%');
+                $query = $query->orwhere($fields[$index], 'like', '%'.$constraint.'%');
 
 
             }
