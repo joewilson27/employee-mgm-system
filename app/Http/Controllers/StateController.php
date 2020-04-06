@@ -103,16 +103,25 @@ class StateController extends Controller
     public function update(Request $request, $id)
     {
         $state = State::findOrFail($id);
-         $this->validate($request, [
-        'name' => 'required|max:60'
-        ]);
+
+        // message for validate state exist
+        $messages = [
+            'unique' => $request['name'] .' has already been taken.'
+        ];
+
+        // validate before insert
+        $this->validate($request, [
+        'name' => 'required|max:60|unique:state,name,'. $id
+        ], $messages);
+
         $input = [
             'name' => $request['name'],
             'country_id' => $request['country_id']
         ];
+
         State::where('id', $id)
             ->update($input);
-        
+     
         return redirect()->intended('system-management/state');
     }
 
