@@ -26,8 +26,8 @@
           'oldVals' => [isset($searchingVals) ? $searchingVals['username'] : '', isset($searchingVals) ? $searchingVals['firstname'] : '']])
           @endcomponent
           </br>
-          @component('layouts.two-cols-search-row', ['items' => ['Last Name', 'Department'],
-          'oldVals' => [isset($searchingVals) ? $searchingVals['lastname'] : '', isset($searchingVals) ? $searchingVals['department'] : '']])
+          @component('layouts.two-cols-search-row', ['items' => ['Last Name'],
+          'oldVals' => [isset($searchingVals) ? $searchingVals['lastname'] : '']])
           @endcomponent
         @endcomponent
       </form>
