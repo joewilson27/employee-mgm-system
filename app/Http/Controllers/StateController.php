@@ -26,10 +26,11 @@ class StateController extends Controller
      */
     public function index()
     {
-         $states = DB::table('state')
+        $states = DB::table('state')
         ->leftJoin('country', 'state.country_id', '=', 'country.id')
         ->select('state.id', 'state.name', 'country.name as country_name', 'country.id as country_id')
         ->paginate(5);
+        //var_dump($states);
         return view('system-mgmt/state/index', ['states' => $states]);
     }
 
@@ -52,14 +53,15 @@ class StateController extends Controller
      */
     public function store(Request $request)
     {
-        Country::findOrFail($request['country_id']);
+        Country::findOrFail($request['country_id']); // untuk memastikan bahwa column id ini ada
         $this->validateInput($request);
-         State::create([
+        State::create([
             'name' => $request['name'],
             'country_id' => $request['country_id']
         ]);
 
         return redirect()->intended('system-management/state');
+        //return redirect('system-management/state');
     }
 
     /**
@@ -83,7 +85,7 @@ class StateController extends Controller
     {
         $state = State::find($id);
         // Redirect to state list if updating state wasn't existed
-        if ($state == null || count($state) == 0) {
+        if ($state == null || empty($state->name)) {
             return redirect()->intended('/system-management/state');
         }
 
@@ -140,29 +142,58 @@ class StateController extends Controller
      */
     public function search(Request $request) {
         $constraints = [
-            'name' => $request['name']
+            //'name' => $request['name'] // ganti, karena biar bisa mencari berdasarkan country juga
+            'state.name' => $request['name'] // karena ini di ganti state.name, jgn lupa key pada index searchingVals di ganti juga dari name -> state.name
             ];
 
        $states = $this->doSearchingQuery($constraints);
+       // var_dump($states);
        return view('system-mgmt/state/index', ['states' => $states, 'searchingVals' => $constraints]);
     }
 
     private function doSearchingQuery($constraints) {
+        /*
         $query = State::query();
         $fields = array_keys($constraints);
         $index = 0;
         foreach ($constraints as $constraint) {
             if ($constraint != null) {
+
                 $query = $query->where( $fields[$index], 'like', '%'.$constraint.'%');
+
             }
 
             $index++;
         }
+        */
+
+        $query = DB::table('state')
+        ->leftJoin('country', 'state.country_id', '=', 'country.id')
+        ->select('state.id', 'state.name', 'country.name as country_name', 'country.id as country_id');
+        $fields = array_keys($constraints); // array_keys() => untuk get nama key nya, dalam contoh ini key sebagai input adl 'state.name' 
+        $index = 0;
+        foreach ($constraints as $constraint) {
+            if ($constraint != null) {
+
+                $query = $query->where( $fields[$index], 'like', '%'.$constraint.'%');
+                $query = $query->orwhere('country.name', 'like', '%'.$constraint.'%');
+
+
+            }
+
+            $index++;
+        }
+
         return $query->paginate(5);
     }
     private function validateInput($request) {
+        // custom message error validate
+        $messages = [
+            'unique' => ':attribute sudah digunakan!'
+        ];
+
         $this->validate($request, [
-        'name' => 'required|max:60|unique:state'
-    ]);
+        'name' => 'required|max:20|unique:state'
+        ],$messages);
     }
 }
